@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Alfaiataria Coronel | Atendimento VIP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="landing.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#inicio" aria-label="Alfaiataria Coronel">
+        <span>AC</span>
+        <strong>Alfaiataria Coronel</strong>
+      </a>
+
+      <nav class="site-nav" aria-label="Navegacao da landing page">
+        <a href="#servico">Servico</a>
+        <a href="#processo">Processo</a>
+        <a href="#atendimento">Atendimento</a>
+        <a href="../sistema-interno/index.html">Sistema interno</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" id="inicio">
+        <img src="assets/hero-atelier.png" alt="Atelie premium de alfaiataria com terno sob medida e tecidos finos">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+          <p>Alta-costura sob medida em Sao Paulo</p>
+          <h1>Alfaiataria Coronel</h1>
+          <span>Atendimento VIP em domicilio, confeccao premium e garantia de ajustes vitalicios para clientes que exigem precisao.</span>
+          <div class="hero-actions">
+            <a class="btn btn-light" href="#atendimento">Solicitar atendimento</a>
+            <a class="btn btn-outline-light" href="#processo">Conhecer processo</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="proof-strip" aria-label="Diferenciais principais">
+        <div>
+          <strong>R$15 mil</strong>
+          <span>ticket medio premium</span>
+        </div>
+        <div>
+          <strong>30 dias</strong>
+          <span>prazo maximo de entrega</span>
+        </div>
+        <div>
+          <strong>VIP</strong>
+          <span>medicao no domicilio</span>
+        </div>
+        <div>
+          <strong>Vitalicio</strong>
+          <span>ajustes acompanhados</span>
+        </div>
+      </section>
+
+      <section class="section" id="servico">
+        <div class="section-heading">
+          <p>Servico sob medida</p>
+          <h2>Peças de gala e ternos produzidos para uma rotina de alto padrao.</h2>
+        </div>
+
+        <div class="service-grid">
+          <article>
+            <span>01</span>
+            <h3>Atendimento VIP</h3>
+            <p>A equipe agenda a visita, registra dados do cliente e prepara a medicao com foco em conforto e privacidade.</p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>Ficha de medidas</h3>
+            <p>O prontuario corporal guarda torax, ombro, cintura, braco e outras medidas essenciais para ajustes futuros.</p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>Tecidos premium</h3>
+            <p>La fria, seda, linho e materiais especiais sao selecionados conforme modelo, ocasiao e acabamento desejado.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="process-band" id="processo">
+        <div class="section-heading compact">
+          <p>Processo</p>
+          <h2>Da primeira conversa a entrega final.</h2>
+        </div>
+
+        <ol class="timeline">
+          <li>
+            <strong>Solicitacao</strong>
+            <span>O cliente envia seus dados pelo formulario de atendimento VIP.</span>
+          </li>
+          <li>
+            <strong>Visita e medidas</strong>
+            <span>O alfaiate registra as medidas e atualiza o prontuario do cliente.</span>
+          </li>
+          <li>
+            <strong>Confeccao</strong>
+            <span>O pedido acompanha status como em corte, costura e pronto para entrega.</span>
+          </li>
+          <li>
+            <strong>Entrega</strong>
+            <span>A peca e entregue com garantia de ajustes vitalicios.</span>
+          </li>
+        </ol>
+      </section>
+
+      <section class="lead-section" id="atendimento">
+        <div class="lead-copy">
+          <p>Atendimento VIP</p>
+          <h2>Solicite uma conversa inicial com a Alfaiataria Coronel.</h2>
+          <span>Este formulario representa a captacao da landing page descrita no documento. No projeto final, os dados podem alimentar o cadastro de clientes no sistema interno.</span>
+        </div>
+
+        <form class="lead-form" id="leadForm" novalidate>
+          <div>
+            <label class="form-label" for="leadName">Nome completo</label>
+            <input class="form-control" id="leadName" name="name" required>
+          </div>
+          <div class="form-row">
+            <div>
+              <label class="form-label" for="leadPhone">Telefone</label>
+              <input class="form-control" id="leadPhone" name="phone" required>
+            </div>
+            <div>
+              <label class="form-label" for="leadEmail">E-mail</label>
+              <input class="form-control" id="leadEmail" name="email" type="email" required>
+            </div>
+          </div>
+          <div>
+            <label class="form-label" for="leadAddress">Endereco para atendimento</label>
+            <input class="form-control" id="leadAddress" name="address" required>
+          </div>
+          <div>
+            <label class="form-label" for="leadInterest">Interesse principal</label>
+            <select class="form-select" id="leadInterest" name="interest" required>
+              <option value="">Selecione</option>
+              <option>Terno sob medida</option>
+              <option>Roupa de gala</option>
+              <option>Ajuste premium</option>
+              <option>Consultoria de tecidos</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label" for="leadMessage">Observacoes</label>
+            <textarea class="form-control" id="leadMessage" name="message" rows="3" placeholder="Data desejada, ocasiao ou preferencia de tecido"></textarea>
+          </div>
+          <div class="lead-feedback" id="leadFeedback" role="status"></div>
+          <button class="btn btn-dark" type="submit">Enviar solicitacao</button>
+        </form>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span>Alfaiataria Coronel - Serra ES - 2026</span>
+      <a href="../sistema-interno/index.html">Acessar modelo do sistema interno</a>
+    </footer>
+
+    <script src="landing.js"></script>
+  </body>
+</html>
