@@ -1,3 +1,7 @@
+// Corrige erro de DNS (ECONNREFUSED querySrv) em algumas redes/ISPs
+const dns = require('dns');
+dns.setServers(['8.8.8.8', '1.1.1.1']);
+
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
