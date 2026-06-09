@@ -1,44 +1,11 @@
-const state = {
-  clients: [
-    {
-      id: 1,
-      name: "Henrique Valenca",
-      phone: "(11) 98422-0194",
-      email: "henrique.valenca@email.com",
-      profession: "Advogado",
-      address: "Av. Paulista, 1578 - Sao Paulo",
-      active: true
-    },
-    {
-      id: 2,
-      name: "Marina Azevedo",
-      phone: "(11) 97741-3029",
-      email: "marina.azevedo@email.com",
-      profession: "Executiva",
-      address: "Rua Oscar Freire, 310 - Sao Paulo",
-      active: true
-    },
-    {
-      id: 3,
-      name: "Caio Monteiro",
-      phone: "(11) 96888-4412",
-      email: "caio.monteiro@email.com",
-      profession: "Empresario",
-      address: "Alameda Santos, 920 - Sao Paulo",
-      active: true
-    }
-  ],
-  measures: [
-    { clientId: 1, torax: 102, ombro: 46, cintura: 88, braco: 62 },
-    { clientId: 2, torax: 91, ombro: 40, cintura: 72, braco: 58 }
-  ],
-  orders: [
-    { id: 1, clientId: 1, model: "Terno tres pecas", fabric: "La fria", status: "Em corte", openedAt: "2026-05-15" },
-    { id: 2, clientId: 2, model: "Vestido de gala", fabric: "Seda", status: "Em costura", openedAt: "2026-05-24" },
-    { id: 3, clientId: 1, model: "Blazer sob medida", fabric: "Linho", status: "Pronto para entrega", openedAt: "2026-05-09" }
-  ],
+let state = {
+  clients: [],
+  measures: [],
+  orders: [],
   query: ""
 };
+
+const API_URL = 'http://localhost:3000/api';
 
 const titles = {
   dashboard: "Painel de acompanhamento",
@@ -49,12 +16,32 @@ const titles = {
 
 const today = new Date("2026-06-07T12:00:00");
 
+// API calls
+async function fetchData() {
+  try {
+    const [clientsRes, measuresRes, ordersRes] = await Promise.all([
+      fetch(`${API_URL}/clients`),
+      fetch(`${API_URL}/measures`),
+      fetch(`${API_URL}/orders`)
+    ]);
+
+    if (clientsRes.ok) state.clients = await clientsRes.json();
+    if (measuresRes.ok) state.measures = await measuresRes.json();
+    if (ordersRes.ok) state.orders = await ordersRes.json();
+
+    renderAll();
+  } catch (error) {
+    console.error("Erro ao carregar dados da API:", error);
+    alert("Falha na conexao com o servidor. Verifique se o backend esta rodando.");
+  }
+}
+
 function getClient(id) {
-  return state.clients.find((client) => client.id === Number(id));
+  return state.clients.find((client) => client.id === id);
 }
 
 function getMeasure(clientId) {
-  return state.measures.find((measure) => measure.clientId === Number(clientId));
+  return state.measures.find((measure) => measure.clientId === clientId);
 }
 
 function deadlineInfo(openedAt) {
@@ -71,6 +58,7 @@ function deadlineInfo(openedAt) {
 }
 
 function matchesQuery(client) {
+  if (!client) return false;
   const query = state.query.trim().toLowerCase();
   if (!query) return true;
   return [client.name, client.email, client.phone, client.profession, client.address]
@@ -100,6 +88,7 @@ function renderOrdersTable() {
   const table = document.getElementById("ordersTable");
   table.innerHTML = state.orders.map((order) => {
     const client = getClient(order.clientId);
+    if (!client) return '';
     const deadline = deadlineInfo(order.openedAt);
     const statusClass = order.status === "Pronto para entrega" ? "done" : deadline.critical ? "alert" : "";
 
@@ -133,8 +122,8 @@ function renderClients() {
       <article class="client-card">
         <div>
           <h3>${client.name}</h3>
-          <div class="client-meta">${client.profession} | ${client.phone} | ${client.email}</div>
-          <div class="client-meta">${client.address}</div>
+          <div class="client-meta">${client.profession || ''} | ${client.phone} | ${client.email}</div>
+          <div class="client-meta">${client.address || ''}</div>
           <div class="client-meta">${orders} pedido(s) no historico</div>
         </div>
         <span class="status-pill ${measure ? "done" : "alert"}">${status}</span>
@@ -177,6 +166,7 @@ function renderOrderCards() {
 
   container.innerHTML = visibleOrders.map((order) => {
     const client = getClient(order.clientId);
+    if (!client) return '';
     const deadline = deadlineInfo(order.openedAt);
     const statusClass = order.status === "Pronto para entrega" ? "done" : deadline.critical ? "alert" : "";
 
@@ -239,7 +229,7 @@ document.getElementById("globalSearch").addEventListener("input", (event) => {
   renderOrderCards();
 });
 
-document.getElementById("clientForm").addEventListener("submit", (event) => {
+document.getElementById("clientForm").addEventListener("submit", async (event) => {
   event.preventDefault();
   const form = event.currentTarget;
   const validationMessage = validateRequired(form);
@@ -259,22 +249,32 @@ document.getElementById("clientForm").addEventListener("submit", (event) => {
     return;
   }
 
-  state.clients.push({
-    id: Date.now(),
+  const payload = {
     name: formData.get("name").trim(),
     phone,
     email,
     profession: formData.get("profession").trim(),
     address: formData.get("address").trim(),
     active: true
-  });
+  };
 
-  form.reset();
-  setFeedback("clientFeedback", "Cliente cadastrado com sucesso.", "success");
-  renderAll();
+  try {
+    const res = await fetch(`${API_URL}/clients`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error("Erro ao salvar no backend");
+    
+    await fetchData(); // refresh data
+    form.reset();
+    setFeedback("clientFeedback", "Cliente cadastrado com sucesso.", "success");
+  } catch (error) {
+    setFeedback("clientFeedback", "Erro ao conectar ao servidor.", "error");
+  }
 });
 
-document.getElementById("measureForm").addEventListener("submit", (event) => {
+document.getElementById("measureForm").addEventListener("submit", async (event) => {
   event.preventDefault();
   const form = event.currentTarget;
   const validationMessage = validateRequired(form);
@@ -285,28 +285,31 @@ document.getElementById("measureForm").addEventListener("submit", (event) => {
   }
 
   const formData = new FormData(form);
-  const clientId = Number(formData.get("clientId"));
-  const existing = getMeasure(clientId);
   const payload = {
-    clientId,
-    torax: formData.get("torax"),
-    ombro: formData.get("ombro"),
-    cintura: formData.get("cintura"),
-    braco: formData.get("braco")
+    clientId: formData.get("clientId"),
+    torax: Number(formData.get("torax")),
+    ombro: Number(formData.get("ombro")),
+    cintura: Number(formData.get("cintura")),
+    braco: Number(formData.get("braco"))
   };
 
-  if (existing) {
-    Object.assign(existing, payload);
-  } else {
-    state.measures.push(payload);
+  try {
+    const res = await fetch(`${API_URL}/measures`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error("Erro ao salvar no backend");
+    
+    await fetchData();
+    form.reset();
+    setFeedback("measureFeedback", "Ficha de medidas atualizada.", "success");
+  } catch (error) {
+    setFeedback("measureFeedback", "Erro ao conectar ao servidor.", "error");
   }
-
-  form.reset();
-  setFeedback("measureFeedback", "Ficha de medidas atualizada.", "success");
-  renderAll();
 });
 
-document.getElementById("orderForm").addEventListener("submit", (event) => {
+document.getElementById("orderForm").addEventListener("submit", async (event) => {
   event.preventDefault();
   const form = event.currentTarget;
   const validationMessage = validateRequired(form);
@@ -317,25 +320,36 @@ document.getElementById("orderForm").addEventListener("submit", (event) => {
   }
 
   const formData = new FormData(form);
-  const clientId = Number(formData.get("clientId"));
+  const clientId = formData.get("clientId");
 
   if (!getMeasure(clientId)) {
     setFeedback("orderFeedback", "Pedido bloqueado: o cliente precisa ter ficha de medidas preenchida.", "error");
     return;
   }
 
-  state.orders.push({
-    id: Date.now(),
+  const payload = {
     clientId,
     model: formData.get("model").trim(),
     fabric: formData.get("fabric"),
     status: formData.get("status"),
-    openedAt: "2026-06-07"
-  });
+    openedAt: new Date().toISOString().split('T')[0] // today YYYY-MM-DD
+  };
 
-  form.reset();
-  setFeedback("orderFeedback", "Pedido de confeccao aberto com sucesso.", "success");
-  renderAll();
+  try {
+    const res = await fetch(`${API_URL}/orders`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error("Erro ao salvar no backend");
+
+    await fetchData();
+    form.reset();
+    setFeedback("orderFeedback", "Pedido de confeccao aberto com sucesso.", "success");
+  } catch (error) {
+    setFeedback("orderFeedback", "Erro ao conectar ao servidor.", "error");
+  }
 });
 
-renderAll();
+// Start app
+fetchData();

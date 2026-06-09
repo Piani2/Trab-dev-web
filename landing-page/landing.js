@@ -24,7 +24,7 @@ function validateLead(form) {
   return "";
 }
 
-leadForm.addEventListener("submit", (event) => {
+leadForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   const validationMessage = validateLead(leadForm);
@@ -40,14 +40,21 @@ leadForm.addEventListener("submit", (event) => {
     email: formData.get("email").trim(),
     address: formData.get("address").trim(),
     interest: formData.get("interest"),
-    message: formData.get("message").trim(),
-    createdAt: new Date().toISOString()
+    message: formData.get("message").trim()
   };
 
-  const storedLeads = JSON.parse(localStorage.getItem("alfaiatariaLeads") || "[]");
-  storedLeads.push(lead);
-  localStorage.setItem("alfaiatariaLeads", JSON.stringify(storedLeads));
+  try {
+    const response = await fetch('http://localhost:3000/api/leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(lead)
+    });
 
-  leadForm.reset();
-  setLeadFeedback("Solicitacao enviada. A equipe VIP entrara em contato para agendar a visita.", "success");
+    if (!response.ok) throw new Error('Erro na requisição');
+
+    leadForm.reset();
+    setLeadFeedback("Solicitacao enviada. A equipe VIP entrara em contato para agendar a visita.", "success");
+  } catch (error) {
+    setLeadFeedback("Erro de conexão. Verifique se o servidor está rodando.", "error");
+  }
 });
