@@ -17,7 +17,7 @@
         </div>
       </div>
 
-      <nav class="nav-panel" aria-label="Navegacao principal">
+      <nav class="nav-panel" aria-label="Navegação principal">
         <button class="nav-link active" data-view="dashboard" type="button">Painel</button>
         <button class="nav-link" data-view="clientes" type="button">Clientes VIP</button>
         <button class="nav-link" data-view="medidas" type="button">Ficha de medidas</button>
@@ -33,14 +33,14 @@
     <main class="app-shell">
       <header class="topbar">
         <div>
-          <p class="eyebrow">Gestao de alta-costura sob medida</p>
+          <p class="eyebrow">Gestão de alta-costura sob medida</p>
           <h1 id="pageTitle">Painel de acompanhamento</h1>
         </div>
 
         <div class="topbar-actions">
           <div class="search-box">
-            <label for="globalSearch" class="visually-hidden">Buscar cliente ou prontuario</label>
-            <input id="globalSearch" class="form-control" type="search" placeholder="Buscar cliente ou prontuario">
+            <label for="globalSearch" class="visually-hidden">Buscar cliente ou prontuário</label>
+            <input id="globalSearch" class="form-control" type="search" placeholder="Buscar cliente ou prontuário">
           </div>
           <a class="btn btn-outline-dark" href="../landing-page/landing.html">Landing page</a>
           <button class="btn btn-dark" data-view-target="clientes" type="button">Novo cliente</button>
@@ -58,21 +58,21 @@
             <strong id="metricMeasures">0</strong>
           </article>
           <article class="metric">
-            <span>Pedidos em producao</span>
+            <span>Pedidos em produção</span>
             <strong id="metricOrders">0</strong>
           </article>
           <article class="metric warning">
-            <span>Prazo critico</span>
+            <span>Prazo crítico</span>
             <strong id="metricDeadlines">0</strong>
           </article>
         </div>
 
-        <div class="content-grid">
+        <div class="content-grid dashboard-grid">
           <section class="panel">
             <div class="panel-header">
               <div>
                 <h2>Status dos pedidos</h2>
-                <p>Controle do prazo maximo de 30 dias.</p>
+                <p>Controle do prazo máximo de 30 dias.</p>
               </div>
             </div>
             <div class="table-responsive">
@@ -80,7 +80,7 @@
                 <thead>
                   <tr>
                     <th>Cliente</th>
-                    <th>Peca</th>
+                    <th>Peça</th>
                     <th>Tecido</th>
                     <th>Status</th>
                     <th>Prazo</th>
@@ -88,16 +88,6 @@
                 </thead>
                 <tbody id="ordersTable"></tbody>
               </table>
-            </div>
-          </section>
-
-          <section class="panel priority-panel">
-            <h2>Prioridades MoSCoW</h2>
-            <div class="priority-list">
-              <div><strong>Must</strong><span>Clientes, medidas, validacoes, MVC e exclusao logica.</span></div>
-              <div><strong>Should</strong><span>Pedidos, status e limite de 30 dias.</span></div>
-              <div><strong>Could</strong><span>Busca rapida por cliente ou prontuario.</span></div>
-              <div><strong>Won't</strong><span>Pagamentos online e login multinivel nesta versao.</span></div>
             </div>
           </section>
         </div>
@@ -109,7 +99,7 @@
             <div class="panel-header">
               <div>
                 <h2>Clientes VIP</h2>
-                <p>Cadastro para atendimento domiciliar e historico de confecao.</p>
+                <p>Cadastro para atendimento domiciliar e histórico de confecção.</p>
               </div>
             </div>
             <div id="clientList" class="client-list"></div>
@@ -131,11 +121,11 @@
                 <input class="form-control" id="clientEmail" name="email" type="email" required>
               </div>
               <div>
-                <label class="form-label" for="clientProfession">Profissao</label>
+                <label class="form-label" for="clientProfession">Profissão</label>
                 <input class="form-control" id="clientProfession" name="profession" required>
               </div>
               <div>
-                <label class="form-label" for="clientAddress">Endereco de visita</label>
+                <label class="form-label" for="clientAddress">Endereço de visita</label>
                 <textarea class="form-control" id="clientAddress" name="address" rows="3" required></textarea>
               </div>
               <div id="clientFeedback" class="feedback" role="status"></div>
@@ -153,8 +143,8 @@
           <section class="panel">
             <div class="panel-header">
               <div>
-                <h2>Prontuarios corporais</h2>
-                <p>Medidas atualizaveis para ajustes vitalicios.</p>
+                <h2>Prontuários corporais</h2>
+                <p>Medidas atualizáveis para ajustes vitalícios.</p>
               </div>
             </div>
             <div id="measureList" class="measure-list"></div>
@@ -169,7 +159,7 @@
               </div>
               <div class="form-grid">
                 <div>
-                  <label class="form-label" for="torax">Torax</label>
+                  <label class="form-label" for="torax">Tórax</label>
                   <input class="form-control" id="torax" name="torax" type="number" min="1" step="0.5" required>
                 </div>
                 <div>
@@ -181,7 +171,7 @@
                   <input class="form-control" id="cintura" name="cintura" type="number" min="1" step="0.5" required>
                 </div>
                 <div>
-                  <label class="form-label" for="braco">Braco</label>
+                  <label class="form-label" for="braco">Braço</label>
                   <input class="form-control" id="braco" name="braco" type="number" min="1" step="0.5" required>
                 </div>
               </div>
@@ -197,7 +187,7 @@
           <section class="panel">
             <div class="panel-header">
               <div>
-                <h2>Pedidos de confeccao</h2>
+                <h2>Pedidos de confecção</h2>
                 <p>Abertura vinculada a cliente com ficha de medidas ativa.</p>
               </div>
             </div>
@@ -212,14 +202,14 @@
                 <select class="form-select" id="orderClient" name="clientId" required></select>
               </div>
               <div>
-                <label class="form-label" for="pieceModel">Modelo da peca</label>
+                <label class="form-label" for="pieceModel">Modelo da peça</label>
                 <input class="form-control" id="pieceModel" name="model" placeholder="Terno sob medida" required>
               </div>
               <div>
                 <label class="form-label" for="fabric">Tecido premium</label>
                 <select class="form-select" id="fabric" name="fabric" required>
                   <option value="">Selecione</option>
-                  <option>La fria</option>
+                  <option>Lã fria</option>
                   <option>Seda</option>
                   <option>Linho</option>
                   <option>Cashmere</option>

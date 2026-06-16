@@ -12,13 +12,13 @@ function validateLead(form) {
 
   if (emptyField) {
     emptyField.focus();
-    return "Preencha todos os campos obrigatorios para solicitar o atendimento.";
+    return "Preencha todos os campos obrigatórios para solicitar o atendimento.";
   }
 
   const email = document.getElementById("leadEmail");
   if (!email.validity.valid) {
     email.focus();
-    return "Informe um e-mail valido para retorno da equipe.";
+    return "Informe um e-mail válido para retorno da equipe.";
   }
 
   return "";
@@ -44,16 +44,16 @@ leadForm.addEventListener("submit", async (event) => {
   };
 
   try {
-    const response = await fetch('http://localhost:3000/api/leads', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const response = await fetch("http://localhost:3000/api/leads", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(lead)
     });
 
-    if (!response.ok) throw new Error('Erro na requisição');
+    if (!response.ok) throw new Error("Erro na requisição");
 
     leadForm.reset();
-    setLeadFeedback("Solicitacao enviada. A equipe VIP entrara em contato para agendar a visita.", "success");
+    setLeadFeedback("Solicitação enviada. A equipe VIP entrará em contato para agendar a visita.", "success");
   } catch (error) {
     setLeadFeedback("Erro de conexão. Verifique se o servidor está rodando.", "error");
   }

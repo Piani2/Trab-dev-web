@@ -5,18 +5,17 @@ let state = {
   query: ""
 };
 
-const API_URL = 'http://localhost:3000/api';
+const API_URL = "http://localhost:3000/api";
 
 const titles = {
   dashboard: "Painel de acompanhamento",
-  clientes: "Gestao de clientes VIP",
+  clientes: "Gestão de clientes VIP",
   medidas: "Ficha de medidas",
-  pedidos: "Pedidos de confeccao"
+  pedidos: "Pedidos de confecção"
 };
 
 const today = new Date("2026-06-07T12:00:00");
 
-// API calls
 async function fetchData() {
   try {
     const [clientsRes, measuresRes, ordersRes] = await Promise.all([
@@ -32,7 +31,7 @@ async function fetchData() {
     renderAll();
   } catch (error) {
     console.error("Erro ao carregar dados da API:", error);
-    alert("Falha na conexao com o servidor. Verifique se o backend esta rodando.");
+    alert("Falha na conexão com o servidor. Verifique se o backend está rodando.");
   }
 }
 
@@ -88,7 +87,7 @@ function renderOrdersTable() {
   const table = document.getElementById("ordersTable");
   table.innerHTML = state.orders.map((order) => {
     const client = getClient(order.clientId);
-    if (!client) return '';
+    if (!client) return "";
     const deadline = deadlineInfo(order.openedAt);
     const statusClass = order.status === "Pronto para entrega" ? "done" : deadline.critical ? "alert" : "";
 
@@ -122,9 +121,9 @@ function renderClients() {
       <article class="client-card">
         <div>
           <h3>${client.name}</h3>
-          <div class="client-meta">${client.profession || ''} | ${client.phone} | ${client.email}</div>
-          <div class="client-meta">${client.address || ''}</div>
-          <div class="client-meta">${orders} pedido(s) no historico</div>
+          <div class="client-meta">${client.profession || ""} | ${client.phone} | ${client.email}</div>
+          <div class="client-meta">${client.address || ""}</div>
+          <div class="client-meta">${orders} pedido(s) no histórico</div>
         </div>
         <span class="status-pill ${measure ? "done" : "alert"}">${status}</span>
       </article>
@@ -141,7 +140,7 @@ function renderMeasures() {
       return `
         <article class="measure-card">
           <h3>${client.name}</h3>
-          <div class="measure-meta">Ficha ainda nao preenchida. Pedido bloqueado pela regra RN01.</div>
+          <div class="measure-meta">Ficha ainda não preenchida. Pedido bloqueado pela regra RN01.</div>
         </article>
       `;
     }
@@ -149,7 +148,7 @@ function renderMeasures() {
     return `
       <article class="measure-card">
         <h3>${client.name}</h3>
-        <div class="measure-meta">Torax: ${measure.torax} cm | Ombro: ${measure.ombro} cm | Cintura: ${measure.cintura} cm | Braco: ${measure.braco} cm</div>
+        <div class="measure-meta">Tórax: ${measure.torax} cm | Ombro: ${measure.ombro} cm | Cintura: ${measure.cintura} cm | Braço: ${measure.braco} cm</div>
       </article>
     `;
   }).join("");
@@ -166,7 +165,7 @@ function renderOrderCards() {
 
   container.innerHTML = visibleOrders.map((order) => {
     const client = getClient(order.clientId);
-    if (!client) return '';
+    if (!client) return "";
     const deadline = deadlineInfo(order.openedAt);
     const statusClass = order.status === "Pronto para entrega" ? "done" : deadline.critical ? "alert" : "";
 
@@ -201,13 +200,13 @@ function validateRequired(form) {
   const emptyField = fields.find((field) => !String(field.value).trim());
   if (emptyField) {
     emptyField.focus();
-    return "Preencha todos os campos obrigatorios antes de salvar.";
+    return "Preencha todos os campos obrigatórios antes de salvar.";
   }
 
   const email = form.querySelector('input[type="email"]');
   if (email && !email.validity.valid) {
     email.focus();
-    return "Informe um e-mail valido para o cliente VIP.";
+    return "Informe um e-mail válido para o cliente VIP.";
   }
 
   return "";
@@ -245,7 +244,7 @@ document.getElementById("clientForm").addEventListener("submit", async (event) =
   const duplicated = state.clients.some((client) => client.email.toLowerCase() === email || client.phone === phone);
 
   if (duplicated) {
-    setFeedback("clientFeedback", "E-mail ou telefone ja cadastrado no sistema.", "error");
+    setFeedback("clientFeedback", "E-mail ou telefone já cadastrado no sistema.", "error");
     return;
   }
 
@@ -260,13 +259,13 @@ document.getElementById("clientForm").addEventListener("submit", async (event) =
 
   try {
     const res = await fetch(`${API_URL}/clients`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
     if (!res.ok) throw new Error("Erro ao salvar no backend");
-    
-    await fetchData(); // refresh data
+
+    await fetchData();
     form.reset();
     setFeedback("clientFeedback", "Cliente cadastrado com sucesso.", "success");
   } catch (error) {
@@ -295,12 +294,12 @@ document.getElementById("measureForm").addEventListener("submit", async (event) 
 
   try {
     const res = await fetch(`${API_URL}/measures`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
     if (!res.ok) throw new Error("Erro ao salvar no backend");
-    
+
     await fetchData();
     form.reset();
     setFeedback("measureFeedback", "Ficha de medidas atualizada.", "success");
@@ -332,24 +331,23 @@ document.getElementById("orderForm").addEventListener("submit", async (event) =>
     model: formData.get("model").trim(),
     fabric: formData.get("fabric"),
     status: formData.get("status"),
-    openedAt: new Date().toISOString().split('T')[0] // today YYYY-MM-DD
+    openedAt: new Date().toISOString().split("T")[0]
   };
 
   try {
     const res = await fetch(`${API_URL}/orders`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
     if (!res.ok) throw new Error("Erro ao salvar no backend");
 
     await fetchData();
     form.reset();
-    setFeedback("orderFeedback", "Pedido de confeccao aberto com sucesso.", "success");
+    setFeedback("orderFeedback", "Pedido de confecção aberto com sucesso.", "success");
   } catch (error) {
     setFeedback("orderFeedback", "Erro ao conectar ao servidor.", "error");
   }
 });
 
-// Start app
 fetchData();
