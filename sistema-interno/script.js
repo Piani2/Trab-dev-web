@@ -228,6 +228,17 @@ document.getElementById("globalSearch").addEventListener("input", (event) => {
   renderOrderCards();
 });
 
+document.getElementById("refreshData").addEventListener("click", async (event) => {
+  const button = event.currentTarget;
+  const originalText = button.textContent;
+
+  button.disabled = true;
+  button.textContent = "Atualizando...";
+  await fetchData();
+  button.textContent = originalText;
+  button.disabled = false;
+});
+
 document.getElementById("clientForm").addEventListener("submit", async (event) => {
   event.preventDefault();
   const form = event.currentTarget;

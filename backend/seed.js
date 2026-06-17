@@ -1,54 +1,24 @@
-// Corrige erro de DNS (ECONNREFUSED querySrv) em algumas redes/ISPs
-const dns = require("dns");
-dns.setServers(["8.8.8.8", "1.1.1.1"]);
-
 require("dotenv").config();
+
 const mongoose = require("mongoose");
+const configureDns = require("./config/dns");
+const connectDatabase = require("./config/database");
+const Client = require("./models/Client");
+const Measure = require("./models/Measure");
+const Order = require("./models/Order");
 
-// Recriando os Schemas aqui para o script rodar de forma independente
-const clientSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  phone: { type: String, required: true },
-  email: { type: String, required: true },
-  address: String,
-  profession: String,
-  active: { type: Boolean, default: true },
-  interest: String,
-  message: String,
-}, { timestamps: true });
-const Client = mongoose.model("Client", clientSchema);
-
-const measureSchema = new mongoose.Schema({
-  clientId: { type: mongoose.Schema.Types.ObjectId, ref: "Client", required: true },
-  torax: Number,
-  ombro: Number,
-  cintura: Number,
-  braco: Number,
-});
-const Measure = mongoose.model("Measure", measureSchema);
-
-const orderSchema = new mongoose.Schema({
-  clientId: { type: mongoose.Schema.Types.ObjectId, ref: "Client", required: true },
-  model: String,
-  fabric: String,
-  status: { type: String, default: "Em andamento" },
-  openedAt: String,
-});
-const Order = mongoose.model("Order", orderSchema);
+configureDns();
 
 async function seedDatabase() {
   try {
     console.log("Conectando ao MongoDB...");
-    await mongoose.connect(process.env.MONGODB_URI);
-    console.log("Conectado!");
+    await connectDatabase();
 
-    // Limpa o banco de dados atual
     console.log("Limpando dados antigos...");
     await Client.deleteMany({});
     await Measure.deleteMany({});
     await Order.deleteMany({});
 
-    // Cria Clientes
     console.log("Criando clientes...");
     const clients = await Client.insertMany([
       { name: "Bruce Wayne", phone: "11988887777", email: "bruce@wayne.com", address: "Mansão Wayne", profession: "Empresário", active: true },
@@ -56,14 +26,12 @@ async function seedDatabase() {
       { name: "Arthur Curry", phone: "11966665555", email: "arthur@atlantis.com", interest: "Terno Sob Medida", message: "Preciso de um terno resistente à água", profession: "Novo Lead", active: true }
     ]);
 
-    // Cria Medidas (para Bruce e Clark)
     console.log("Criando medidas...");
     await Measure.insertMany([
       { clientId: clients[0]._id, torax: 110, ombro: 50, cintura: 90, braco: 68 },
       { clientId: clients[1]._id, torax: 115, ombro: 55, cintura: 95, braco: 70 }
     ]);
 
-    // Cria Pedidos (para Bruce e Clark)
     console.log("Criando pedidos...");
     await Order.insertMany([
       { clientId: clients[0]._id, model: "Terno Slim Fit Preto", fabric: "Lã Fria Super 120", status: "Em andamento", openedAt: new Date().toLocaleDateString("pt-BR") },
@@ -72,12 +40,12 @@ async function seedDatabase() {
     ]);
 
     console.log("Banco de dados populado com sucesso!");
-    process.exit(0);
   } catch (error) {
     console.error("Erro ao popular o banco de dados:", error);
-    process.exit(1);
+    process.exitCode = 1;
+  } finally {
+    await mongoose.disconnect();
   }
 }
 
-// Executa a função
 seedDatabase();
