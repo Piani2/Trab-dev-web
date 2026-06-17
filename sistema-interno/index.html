@@ -199,8 +199,9 @@
           </section>
 
           <section class="panel">
-            <h2>Novo pedido</h2>
+            <h2 id="orderFormTitle">Novo pedido</h2>
             <form id="orderForm" class="stacked-form" novalidate>
+              <input id="orderId" name="orderId" type="hidden">
               <div>
                 <label class="form-label" for="orderClient">Cliente</label>
                 <select class="form-select" id="orderClient" name="clientId" required></select>
@@ -229,7 +230,10 @@
                 </select>
               </div>
               <div id="orderFeedback" class="feedback" role="status"></div>
-              <button class="btn btn-dark" type="submit">Abrir pedido</button>
+              <div class="button-row">
+                <button class="btn btn-outline-secondary d-none" id="cancelOrderEdit" type="button">Cancelar edição</button>
+                <button class="btn btn-dark" id="orderSubmitButton" type="submit">Abrir pedido</button>
+              </div>
             </form>
           </section>
         </div>

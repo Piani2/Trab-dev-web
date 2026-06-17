@@ -290,6 +290,44 @@ h2 {
   gap: 12px;
 }
 
+.order-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.order-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.order-action-button {
+  min-height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 6px 12px;
+  background: #fff;
+  font-weight: 700;
+}
+
+.order-action-button.edit {
+  color: var(--blue);
+}
+
+.order-action-button.delete {
+  color: var(--red);
+}
+
+.order-action-button:hover {
+  border-color: currentColor;
+  background: var(--paper);
+}
+
 .client-card {
   display: grid;
   grid-template-columns: 1fr auto;

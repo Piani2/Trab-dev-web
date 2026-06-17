@@ -5,7 +5,8 @@ const orderSchema = new mongoose.Schema({
   model: String,
   fabric: String,
   status: { type: String, default: "Em andamento" },
-  openedAt: String,
+  openedAt: { type: String, required: true },
+  dueDate: { type: String, required: true },
 });
 
 module.exports = mongoose.model("Order", orderSchema);

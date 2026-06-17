@@ -14,8 +14,6 @@ const titles = {
   pedidos: "Pedidos de confecção"
 };
 
-const today = new Date("2026-06-07T12:00:00");
-
 async function fetchData() {
   try {
     const [clientsRes, measuresRes, ordersRes] = await Promise.all([
@@ -43,16 +41,29 @@ function getMeasure(clientId) {
   return state.measures.find((measure) => measure.clientId === clientId);
 }
 
-function deadlineInfo(openedAt) {
-  const openedDate = new Date(`${openedAt}T12:00:00`);
-  const limitDate = new Date(openedDate);
-  limitDate.setDate(limitDate.getDate() + 30);
+function addDays(dateString, days) {
+  const date = new Date(`${dateString}T12:00:00`);
+  date.setDate(date.getDate() + days);
+  return date.toISOString().split("T")[0];
+}
+
+function formatDate(dateString) {
+  if (!dateString) return "Não informado";
+  return new Date(`${dateString}T12:00:00`).toLocaleDateString("pt-BR");
+}
+
+function deadlineInfo(order) {
+  const dueDate = order.dueDate || addDays(order.openedAt, 30);
+  const limitDate = new Date(`${dueDate}T12:00:00`);
+  const today = new Date();
+  today.setHours(12, 0, 0, 0);
   const remaining = Math.ceil((limitDate - today) / 86400000);
 
   return {
     remaining,
     label: remaining < 0 ? `${Math.abs(remaining)} dias atrasado` : `${remaining} dias restantes`,
-    critical: remaining <= 7
+    critical: remaining <= 7,
+    dueDate
   };
 }
 
@@ -75,7 +86,7 @@ function setFeedback(elementId, message, type) {
 function renderMetrics() {
   const completeMeasures = state.clients.filter((client) => getMeasure(client.id)).length;
   const activeOrders = state.orders.filter((order) => order.status !== "Pronto para entrega").length;
-  const criticalOrders = state.orders.filter((order) => deadlineInfo(order.openedAt).critical).length;
+  const criticalOrders = state.orders.filter((order) => deadlineInfo(order).critical).length;
 
   document.getElementById("metricClients").textContent = state.clients.filter((client) => client.active).length;
   document.getElementById("metricMeasures").textContent = completeMeasures;
@@ -88,7 +99,7 @@ function renderOrdersTable() {
   table.innerHTML = state.orders.map((order) => {
     const client = getClient(order.clientId);
     if (!client) return "";
-    const deadline = deadlineInfo(order.openedAt);
+    const deadline = deadlineInfo(order);
     const statusClass = order.status === "Pronto para entrega" ? "done" : deadline.critical ? "alert" : "";
 
     return `
@@ -166,15 +177,24 @@ function renderOrderCards() {
   container.innerHTML = visibleOrders.map((order) => {
     const client = getClient(order.clientId);
     if (!client) return "";
-    const deadline = deadlineInfo(order.openedAt);
+    const deadline = deadlineInfo(order);
     const statusClass = order.status === "Pronto para entrega" ? "done" : deadline.critical ? "alert" : "";
 
     return `
       <article class="order-card">
-        <h3>${order.model}</h3>
-        <div class="order-meta">${client.name} | ${order.fabric}</div>
-        <div class="order-meta">Aberto em ${order.openedAt} | ${deadline.label}</div>
-        <span class="status-pill ${statusClass}">${order.status}</span>
+        <div class="order-card-header">
+          <div>
+            <h3>${order.model}</h3>
+            <div class="order-meta">${client.name} | ${order.fabric}</div>
+            <div class="order-meta">Abertura: ${formatDate(order.openedAt)}</div>
+            <div class="order-meta">Prazo: ${formatDate(deadline.dueDate)} | ${deadline.label}</div>
+          </div>
+          <span class="status-pill ${statusClass}">${order.status}</span>
+        </div>
+        <div class="order-actions">
+          <button class="order-action-button edit" data-order-action="edit" data-order-id="${order.id}" type="button">Editar</button>
+          <button class="order-action-button delete" data-order-action="delete" data-order-id="${order.id}" type="button">Excluir</button>
+        </div>
       </article>
     `;
   }).join("");
@@ -212,6 +232,63 @@ function validateRequired(form) {
   return "";
 }
 
+function resetOrderForm() {
+  const form = document.getElementById("orderForm");
+  form.reset();
+  document.getElementById("orderId").value = "";
+  document.getElementById("orderFormTitle").textContent = "Novo pedido";
+  document.getElementById("orderSubmitButton").textContent = "Abrir pedido";
+  document.getElementById("cancelOrderEdit").classList.add("d-none");
+  setFeedback("orderFeedback", "", "");
+}
+
+function selectExistingValue(selectId, value) {
+  const select = document.getElementById(selectId);
+  const hasOption = Array.from(select.options).some((option) => option.value === value);
+
+  if (!hasOption && value) {
+    select.add(new Option(value, value));
+  }
+
+  select.value = value;
+}
+
+function startOrderEdit(orderId) {
+  const order = state.orders.find((item) => item.id === orderId);
+  if (!order) return;
+
+  document.getElementById("orderId").value = order.id;
+  document.getElementById("orderClient").value = order.clientId;
+  document.getElementById("pieceModel").value = order.model;
+  selectExistingValue("fabric", order.fabric);
+  selectExistingValue("status", order.status);
+  document.getElementById("orderFormTitle").textContent = "Editar pedido";
+  document.getElementById("orderSubmitButton").textContent = "Salvar alterações";
+  document.getElementById("cancelOrderEdit").classList.remove("d-none");
+  document.getElementById("orderForm").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+async function deleteOrder(orderId) {
+  const order = state.orders.find((item) => item.id === orderId);
+  if (!order || !window.confirm(`Excluir o pedido "${order.model}"?`)) return;
+
+  try {
+    const response = await fetch(`${API_URL}/orders/${orderId}`, {
+      method: "DELETE"
+    });
+
+    if (!response.ok) throw new Error("Erro ao excluir pedido");
+
+    if (document.getElementById("orderId").value === orderId) {
+      resetOrderForm();
+    }
+    await fetchData();
+    setFeedback("orderFeedback", "Pedido excluído com sucesso.", "success");
+  } catch (error) {
+    setFeedback("orderFeedback", "Não foi possível excluir o pedido.", "error");
+  }
+}
+
 document.querySelectorAll("[data-view], [data-view-target]").forEach((button) => {
   button.addEventListener("click", () => {
     const viewId = button.dataset.view || button.dataset.viewTarget;
@@ -227,6 +304,17 @@ document.getElementById("globalSearch").addEventListener("input", (event) => {
   renderMeasures();
   renderOrderCards();
 });
+
+document.getElementById("orderCards").addEventListener("click", (event) => {
+  const button = event.target.closest("[data-order-action]");
+  if (!button) return;
+
+  const { orderAction, orderId } = button.dataset;
+  if (orderAction === "edit") startOrderEdit(orderId);
+  if (orderAction === "delete") deleteOrder(orderId);
+});
+
+document.getElementById("cancelOrderEdit").addEventListener("click", resetOrderForm);
 
 document.getElementById("refreshData").addEventListener("click", async (event) => {
   const button = event.currentTarget;
@@ -331,6 +419,7 @@ document.getElementById("orderForm").addEventListener("submit", async (event) =>
 
   const formData = new FormData(form);
   const clientId = formData.get("clientId");
+  const orderId = formData.get("orderId");
 
   if (!getMeasure(clientId)) {
     setFeedback("orderFeedback", "Pedido bloqueado: o cliente precisa ter ficha de medidas preenchida.", "error");
@@ -342,20 +431,26 @@ document.getElementById("orderForm").addEventListener("submit", async (event) =>
     model: formData.get("model").trim(),
     fabric: formData.get("fabric"),
     status: formData.get("status"),
-    openedAt: new Date().toISOString().split("T")[0]
+    openedAt: orderId
+      ? state.orders.find((order) => order.id === orderId)?.openedAt
+      : new Date().toISOString().split("T")[0]
   };
 
   try {
-    const res = await fetch(`${API_URL}/orders`, {
-      method: "POST",
+    const res = await fetch(orderId ? `${API_URL}/orders/${orderId}` : `${API_URL}/orders`, {
+      method: orderId ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
     if (!res.ok) throw new Error("Erro ao salvar no backend");
 
     await fetchData();
-    form.reset();
-    setFeedback("orderFeedback", "Pedido de confecção aberto com sucesso.", "success");
+    resetOrderForm();
+    setFeedback(
+      "orderFeedback",
+      orderId ? "Pedido atualizado com sucesso." : "Pedido de confecção aberto com sucesso.",
+      "success"
+    );
   } catch (error) {
     setFeedback("orderFeedback", "Erro ao conectar ao servidor.", "error");
   }
