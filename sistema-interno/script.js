@@ -151,7 +151,7 @@ function renderMeasures() {
       return `
         <article class="measure-card">
           <h3>${client.name}</h3>
-          <div class="measure-meta">Ficha ainda não preenchida. Pedido bloqueado pela regra RN01.</div>
+          <div class="measure-meta">Ficha não preenchida</div>
         </article>
       `;
     }
